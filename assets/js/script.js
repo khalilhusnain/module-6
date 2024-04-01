@@ -6,6 +6,48 @@ const searchHistory = document.getElementById('search-history');
 const currentWeather = document.getElementById('current-weather');
 const forecast = document.getElementById('forecast');
 
+function celsiusToFahrenheit(celsius) {
+  return (celsius * 9/5) + 32;
+}
+
+function saveSearchHistory(city) {
+  let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+  searchHistory.push(city);
+  localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+}
+
+// Function to retrieve search history from localStorage
+function getSearchHistory() {
+  return JSON.parse(localStorage.getItem('searchHistory')) || [];
+}
+
+// Update addToSearchHistory function to save history to localStorage
+function addToSearchHistory(city) {
+  const history = getSearchHistory();
+  if (!history.includes(city)) {
+    saveSearchHistory(city);
+  }
+  renderSearchHistory();
+}
+
+// Function to render search history
+function renderSearchHistory() {
+  searchHistory.innerHTML = '';
+  const history = getSearchHistory();
+  history.forEach(city => {
+    const searchItem = document.createElement('div');
+    searchItem.textContent = city;
+    searchItem.classList.add('search-item');
+    searchItem.addEventListener('click', function() {
+      getWeather(city);
+    });
+    searchHistory.appendChild(searchItem);
+  });
+}
+
+// Call renderSearchHistory on page load
+renderSearchHistory();
+
 searchForm.addEventListener('submit', function(event) {
   event.preventDefault();
   const city = cityInput.value.trim();
@@ -15,32 +57,6 @@ searchForm.addEventListener('submit', function(event) {
   }
 });
 
-function celsiusToFahrenheit(celsius) {
-  return (celsius * 9/5) + 32;
-}
-
-
-// function getWeather(city) {
-//   // const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-//   // const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=d46ab4fb451d039108fe7ce69d6d27f2`
-//   const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}`
-//   fetch(apiUrl)
-//     .then(response => {
-//       console.log('tttttttttttttt', response)
-//       if (!response.ok) {
-//         throw new Error('City not found');
-//       }
-//       return response.json();
-//     })
-//     .then(data => {
-//       showCurrentWeather(data);
-//       addToSearchHistory(data.city.name);
-//     })
-//     .catch(error => {
-//       console.error('Error fetching current weather:', error);
-//       alert('City not found. Please try again.');
-//     });
-// }
 
 function getWeather(city) {
   const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
@@ -109,14 +125,14 @@ function showForecast(forecastData) {
 }
 
 
-function addToSearchHistory(city) {
-  const searchItem = document.createElement('div');
-  searchItem.textContent = city;
-  searchItem.classList.add('search-item');
-  searchItem.addEventListener('click', function() {
-    getWeather(city);
-  });
-  searchHistory.appendChild(searchItem);
-}
+// function addToSearchHistory(city) {
+//   const searchItem = document.createElement('div');
+//   searchItem.textContent = city;
+//   searchItem.classList.add('search-item');
+//   searchItem.addEventListener('click', function() {
+//     getWeather(city);
+//   });
+//   searchHistory.appendChild(searchItem);
+// }
 
 // You can add functions to fetch and display the forecast data as per your requirements.
